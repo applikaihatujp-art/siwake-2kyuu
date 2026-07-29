@@ -1,4 +1,5 @@
 // app.js
+import { saveScoreToSupabase } from "./supabaseClient.js"; // 必要に応じてインポートを確認してください
 
 let currentQuiz = {};
 // 正解の科目（drとcr）を必ず含める
@@ -14,7 +15,7 @@ let timerInterval;
 
 let inputStep = 0;
 let selectedDr = "";
-
+let selectedCr = "";
 let wrongQuizzes = [];
 
 let isProcessing = false; // 1. ファイル上部で定義
@@ -331,6 +332,9 @@ function endGame() {
   clearInterval(timerInterval);
   saveResultToHistory(score, totalScore, maxTime);
 
+  // ★ ここでSupabaseにスコアを保存する！
+  saveScoreToSupabase(score, totalScore);
+
   document.getElementById("play-screen").classList.add("hide");
   const resultScreen = document.getElementById("result-screen");
   if (resultScreen) {
@@ -367,3 +371,7 @@ function showReview() {
 function hideReview() {
   document.getElementById("review-modal").classList.add("hide");
 }
+
+window.startGame = startGame;
+window.showReview = showReview;
+window.hideReview = hideReview;
