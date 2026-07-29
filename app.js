@@ -1,6 +1,9 @@
 // app.js
 
 let currentQuiz = {};
+// 正解の科目（drとcr）を必ず含める
+let displayOptions = [currentQuiz.dr, currentQuiz.cr];
+
 let lastQuizIndex = -1;
 let score = 0;
 let totalScore = 0;
@@ -114,22 +117,48 @@ function setupButtons(index) {
   const container = document.getElementById("btn-container");
   container.innerHTML = "";
 
-  const currentQuiz = quizData[index];
+  // 1. 変数名を zuizData2 に変更
+  const currentQuiz = quizData2[index];
 
-  // ここで安全確認！
-  if (!currentQuiz || !currentQuiz.options) {
-    console.error("エラー！データが見つかりません。インデックス: " + index);
+  // 安全確認
+  if (
+    !currentQuiz ||
+    !currentQuiz.options ||
+    !currentQuiz.dr ||
+    !currentQuiz.cr
+  ) {
+    console.error(
+      "エラー！データが見つからないか、必要データが不足しています。インデックス: " +
+        index,
+    );
     return;
   }
 
   container.className = "btn-container";
 
-  // ここでシャッフル！
-  const shuffledOptions = [...currentQuiz.options].sort(
-    () => Math.random() - 0.5,
-  );
+  // 2. 毎回新しく正解（dr, cr）を入れた状態からスタートするように初期化
+  let displayOptions = [currentQuiz.dr, currentQuiz.cr];
 
-  // 安定したデータを使って表示
+  // scoreが5未満（前半）か、5以上（後半）かでダミーの数を変更
+  if (score < 5) {
+    const availableDummies = currentQuiz.options.filter(
+      (opt) => opt !== currentQuiz.dr && opt !== currentQuiz.cr,
+    );
+
+    const shuffledDummies = [...availableDummies].sort(
+      () => Math.random() - 0.5,
+    );
+    const selectedDummies = shuffledDummies.slice(0, 6);
+
+    displayOptions = displayOptions.concat(selectedDummies);
+  } else {
+    displayOptions = displayOptions.concat(currentQuiz.options);
+  }
+
+  // 最終的な選択肢全体をシャッフルする
+  const shuffledOptions = displayOptions.sort(() => Math.random() - 0.5);
+
+  // ボタンを生成して配置
   shuffledOptions.forEach((optText) => {
     const btn = document.createElement("button");
     btn.className = "opt-btn";
@@ -141,34 +170,27 @@ function setupButtons(index) {
 
 function nextQuestion() {
   // データの総数を取得
-  const totalQuizzes = quizData.length;
+  const totalQuizzes = quizData2.length;
 
-  // 5問正解するまで（0〜5点）は 0〜12番目、6問目以降（6点以上）は 13番目〜最後 から出題
-  let minIndex, maxIndex;
-  if (score < 5) {
-    minIndex = 0;
-    maxIndex = 13; // 13未満 = 12まで
-  } else {
-    minIndex = 13;
-    maxIndex = totalQuizzes; // データの最大数まで
-  }
+  if (totalQuizzes === 0) return;
 
-  // 範囲内でランダムなインデックスを決定
-  let newIndex = Math.floor(Math.random() * (maxIndex - minIndex)) + minIndex;
+  // 全データの中からランダムなインデックスを決定
+  let newIndex = Math.floor(Math.random() * totalQuizzes);
 
   // もし前回と同じ問題ならもう一度選び直す（簡易的な重複防止）
   if (totalQuizzes > 1) {
     while (newIndex === lastQuizIndex) {
-      newIndex = Math.floor(Math.random() * (maxIndex - minIndex)) + minIndex;
+      newIndex = Math.floor(Math.random() * totalQuizzes);
     }
   }
 
   lastQuizIndex = newIndex;
-  currentQuiz = quizData[newIndex];
+  currentQuiz = quizData2[newIndex];
 
-  // ★【ここに追加】新しい問題が表示された瞬間の時間を記録する
+  // 新しい問題が表示された瞬間の時間を記録する
   questionStartTime = Date.now();
-  // --- ここにリセット処理を追加 ---
+
+  // リセット処理
   selectedDr = "";
   selectedCr = "";
   inputStep = 0; // 入力ステップも最初の状態に戻す
