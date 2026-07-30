@@ -75,8 +75,21 @@
             </select>
           </div>
         </div>
-        <div class="history-title">📈 過去5回の成績履歴</div>
-        <div id="history-list" class="history-list"></div>
+
+        <div class="stats-container">
+          <!-- 左側：自己ベスト TOP3 -->
+          <div class="stats-box">
+            <div class="history-title">👑 自己ベスト</div>
+            <div id="best-score-list" class="history-list"></div>
+          </div>
+
+          <!-- 右側：過去5回の成績履歴 -->
+          <div class="stats-box">
+            <div class="history-title">📈 過去5回の成績</div>
+            <div id="history-list" class="history-list"></div>
+          </div>
+        </div>
+        <!-- 👆 ここまで -->
       </div>
 
       <div id="play-screen" class="hide">

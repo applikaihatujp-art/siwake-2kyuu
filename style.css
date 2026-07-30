@@ -321,39 +321,58 @@ h1 {
   font-weight: bold;
 }
 
-/* 過去の履歴表示 */
+/* 【新規追加】左右の成績エリア全体を横並びにするコンテナ */
+.stats-container {
+  display: flex;
+  gap: 15px; /* 左右のボックスの隙間 */
+  justify-content: center;
+  margin-top: 10px;
+}
+
+/* 【新規追加】左右それぞれのボックス */
+.stats-box {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+/* 過去の履歴表示（幅を少しスリムに調整して2つ並びやすくする） */
 .history-title {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: bold;
   color: #f1c40f;
-  margin: 20px 0 6px 0;
+  margin: 10px 0 6px 0;
   text-align: left;
-  width: 290px;
+  width: 175px; /* 2つ並ぶように幅を調整 */
   border-bottom: 1px solid #444;
   padding-bottom: 4px;
 }
+
 .history-list {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  width: 290px;
-  font-size: 13px;
+  width: 175px; /* タイトルと幅を合わせる */
+  font-size: 12px; /* 文字サイズも少しスリムにすると綺麗に収まります */
   text-align: left;
   color: #ccc;
 }
+
 .history-item {
   background: #222;
-  padding: 8px 14px;
+  padding: 6px 10px; /* パディングを少しコンパクトに */
   border-radius: 4px;
   display: flex;
   justify-content: space-between;
   border-left: 3px solid #2ecc71;
 }
+
 .history-empty {
   text-align: center;
   color: #666;
   font-style: italic;
   padding: 10px;
+  font-size: 12px;
 }
 
 .hide {

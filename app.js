@@ -1,6 +1,5 @@
 // app.js
-import { saveScoreToSupabase } from "./supabaseClient.js"; // 必要に応じてインポートを確認してください
-
+import { getUserId, saveScoreToSupabase, supabase } from "./supabaseClient.js"; // getUserIdもインポートする
 let currentQuiz = {};
 // 正解の科目（drとcr）を必ず含める
 let displayOptions = [currentQuiz.dr, currentQuiz.cr];
@@ -335,6 +334,9 @@ function endGame() {
   // ★ ここでSupabaseにスコアを保存する！
   saveScoreToSupabase(score, totalScore);
 
+  // 👑 追加：保存した後に自己ベストのランキングを最新に更新する
+  loadBestScores();
+
   document.getElementById("play-screen").classList.add("hide");
   const resultScreen = document.getElementById("result-screen");
   if (resultScreen) {
@@ -346,6 +348,46 @@ function endGame() {
   // 間違えた問題がある場合だけボタンを表示
   if (wrongQuizzes.length > 0) {
     document.getElementById("review-btn").style.display = "block";
+  }
+}
+
+async function loadBestScores() {
+  try {
+    const userId = getUserId(); // 自身の固有IDを取得
+
+    const { data, error } = await supabase
+      .from("scores")
+      .select("score, total_score, play_time")
+      .eq("user_id", userId) // ★ 自分自身のデータに絞り込む
+      .eq("play_time", 60) // 60秒モード
+      .order("score", { ascending: false })
+      .order("total_score", { ascending: false })
+      .limit(3);
+
+    const bestListEl = document.getElementById("best-score-list");
+    if (!bestListEl) return;
+
+    if (error || !data || data.length === 0) {
+      bestListEl.innerHTML =
+        '<div class="history-empty">データがありません</div>';
+      return;
+    }
+
+    let html = "";
+    data.forEach((item, index) => {
+      const rankIcon = index === 0 ? "👑" : index === 1 ? "🥈" : "🥉";
+      const timeText = item.play_time ? `${item.play_time}秒` : "-";
+
+      html += `
+        <div class="history-item">
+          <span>${rankIcon} ${item.score}問 (${item.total_score}点)</span>
+          <span style="color: #888; font-size: 11px;">${timeText}</span>
+        </div>
+      `;
+    });
+    bestListEl.innerHTML = html;
+  } catch (err) {
+    console.error("自己ベストの取得に失敗しました:", err);
   }
 }
 
@@ -378,3 +420,7 @@ window.hideReview = hideReview;
 window.toggleSettingsMenu = toggleSettingsMenu;
 window.quitGame = quitGame;
 window.clearDrSelection = clearDrSelection;
+window.loadBestScores = loadBestScores;
+window.addEventListener("DOMContentLoaded", () => {
+  loadBestScores(); // 画面を開いたときにランキングを読み込む
+});
