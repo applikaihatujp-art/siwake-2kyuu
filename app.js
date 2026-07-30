@@ -375,3 +375,6 @@ function hideReview() {
 window.startGame = startGame;
 window.showReview = showReview;
 window.hideReview = hideReview;
+window.toggleSettingsMenu = toggleSettingsMenu;
+window.quitGame = quitGame;
+window.clearDrSelection = clearDrSelection;
