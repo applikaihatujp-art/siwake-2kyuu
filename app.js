@@ -343,6 +343,9 @@ function endGame() {
     resultScreen.classList.remove("hide");
     document.getElementById("final-score").innerText = score;
     document.getElementById("final-totalScore").innerText = totalScore;
+
+    // 👇 ここに選択された秒数を画面に反映する処理を追加！
+    document.getElementById("final-time").innerText = maxTime;
   }
 
   // 間違えた問題がある場合だけボタンを表示
