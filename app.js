@@ -450,9 +450,10 @@ function showReview() {
     item.style.background = "#3d3d3d";
     item.style.borderRadius = "8px";
     item.innerHTML = `
-            <div style="color: #f1c40f;">Q${index + 1}: ${quiz.q}</div>
-            <div style="margin-top: 5px;">借方: ${quiz.dr} / 貸方: ${quiz.cr}</div>
-        `;
+        <div style="color: #f1c40f;">問題ID: ${quiz.id}</div>
+        <div style="margin-top: 5px;">Q. ${quiz.q}</div>
+        <div style="margin-top: 5px; color: #2ecc71;">借方: ${quiz.dr} / 貸方: ${quiz.cr}</div>
+    `;
     listDiv.appendChild(item);
   });
   document.getElementById("review-modal").classList.remove("hide");
