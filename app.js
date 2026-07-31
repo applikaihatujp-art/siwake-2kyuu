@@ -391,6 +391,51 @@ async function loadBestScores() {
   }
 }
 
+async function loadDailyRanking() {
+  try {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const todayISO = today.toISOString();
+
+    const { data, error } = await supabase
+      .from("scores")
+      .select("score, total_score, play_time")
+      .eq("play_time", 60) // 60秒モード
+      .gte("created_at", todayISO) // 今日のデータ
+      .order("score", { ascending: false }) // スコアが高い順
+      .order("total_score", { ascending: false }) // 同点ならトータル点数順
+      .limit(3); // 上位3件
+
+    if (error) throw error;
+
+    const container = document.getElementById("daily-ranking-list");
+    if (container) {
+      container.innerHTML = "";
+
+      if (data.length === 0) {
+        container.innerHTML = `<div style="color: #888; font-size: 0.9rem; padding: 10px;">今日の記録はまだありません</div>`;
+        return;
+      }
+
+      data.forEach((row, index) => {
+        const item = document.createElement("div");
+        // 自己ベストと同じようなデザインのクラスを流用すると綺麗に馴染みます
+        item.className = "ranking-item";
+        item.innerHTML = `<span>👑 ${index + 1}位</span> <span>${row.score}問 (${row.total_score}点)</span>`;
+        container.appendChild(item);
+      });
+    }
+  } catch (error) {
+    console.error("本日のランキング取得エラー:", error.message);
+  }
+}
+
+// ページ読み込み時やゲーム終了時に呼ぶ
+window.addEventListener("DOMContentLoaded", () => {
+  // 既存の自分のベスト表示と一緒に呼び出す
+  loadDailyRanking();
+});
+
 // 復習リストを表示する関数
 function showReview() {
   const listDiv = document.getElementById("wrong-questions-list");
