@@ -440,23 +440,92 @@ window.addEventListener("DOMContentLoaded", () => {
 });
 
 // 復習リストを表示する関数
-function showReview() {
+async function showReview() {
+  const currentUserId = getUserId();
+
   const listDiv = document.getElementById("wrong-questions-list");
   listDiv.innerHTML = "";
-  wrongQuizzes.forEach((quiz, index) => {
+
+  // 1. ユーザーがすでに登録しているお気に入りリストをSupabaseから取得
+  const { data: favorites, error } = await supabase
+    .from("favorites")
+    .select("question_id")
+    .eq("user_id", currentUserId);
+
+  if (error) {
+    console.error("お気に入りの取得に失敗しました:", error);
+  }
+
+  // お気に入り登録されているquestion_idの配列（例: [14, 59]）
+  const favoritedIds = favorites ? favorites.map((fav) => fav.question_id) : [];
+
+  wrongQuizzes.forEach((quiz) => {
     const item = document.createElement("div");
     item.style.marginBottom = "15px";
     item.style.padding = "10px";
     item.style.background = "#3d3d3d";
     item.style.borderRadius = "8px";
+
+    // 既に登録されている場合は星を塗りつぶし（★）、未登録なら「☆」にする
+    const isFavorited = favoritedIds.includes(quiz.id);
+    const starChar = isFavorited ? "★" : "☆";
+    const starColor = isFavorited ? "#f1c40f" : "#ccc";
+
     item.innerHTML = `
-        <div style="color: #f1c40f;">問題ID: ${quiz.id}</div>
-        <div style="margin-top: 5px;">Q. ${quiz.q}</div>
-        <div style="margin-top: 5px; color: #2ecc71;">借方: ${quiz.dr} / 貸方: ${quiz.cr}</div>
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <span style="color: #f1c40f;">問題ID: ${quiz.id}</span>
+        <button class="favorite-btn" data-id="${quiz.id}" style="background: none; border: none; font-size: 20px; cursor: pointer; color: ${starColor};">${starChar}</button>
+      </div>
+      <div style="margin-top: 5px;">Q. ${quiz.q}</div>
+      <div style="margin-top: 5px; color: #2ecc71;">借方: ${quiz.dr} / 貸方: ${quiz.cr}</div>
     `;
     listDiv.appendChild(item);
   });
+
   document.getElementById("review-modal").classList.remove("hide");
+
+  // 2. 生成された☆ボタンにクリックイベントを設定
+  document.querySelectorAll(".favorite-btn").forEach((button) => {
+    button.addEventListener("click", async (e) => {
+      const quizId = parseInt(e.target.getAttribute("data-id"), 10);
+      await toggleFavorite(quizId, e.target);
+    });
+  });
+}
+
+// 3. お気に入りの追加・削除を切り替える（トグル）関数
+async function toggleFavorite(quizId, buttonElement) {
+  // すでに星が黄色（★）かどうかで追加・削除を判定
+  const currentUserId = getUserId();
+  const isCurrentlyFavorited = buttonElement.textContent === "★";
+
+  if (isCurrentlyFavorited) {
+    // 削除処理
+    const { error } = await supabase
+      .from("favorites")
+      .delete()
+      .eq("user_id", currentUserId)
+      .eq("question_id", quizId);
+
+    if (!error) {
+      buttonElement.textContent = "☆";
+      buttonElement.style.color = "#ccc";
+    } else {
+      console.error("お気に入りの削除に失敗しました:", error);
+    }
+  } else {
+    // 追加処理
+    const { error } = await supabase
+      .from("favorites")
+      .insert([{ user_id: currentUserId, question_id: quizId }]);
+
+    if (!error) {
+      buttonElement.textContent = "★";
+      buttonElement.style.color = "#f1c40f";
+    } else {
+      console.error("お気に入りの追加に失敗しました:", error);
+    }
+  }
 }
 
 function hideReview() {
