@@ -113,6 +113,81 @@ function startGame() {
   }, 1000);
 }
 
+// お気に入り一覧を表示するモーダルを開く関数
+window.showFavoritesModal = async function () {
+  const currentUserId = getUserId();
+
+  const { data: favorites, error } = await supabase
+    .from("favorites")
+    .select("question_id")
+    .eq("user_id", currentUserId);
+
+  if (error) {
+    console.error("お気に入りリストの取得に失敗しました:", error);
+    alert("お気に入りデータの取得に失敗しました。");
+    return;
+  }
+
+  // ★ ここで取得できたお気に入りIDを確認
+  console.log("Supabaseから取得したfavoritesデータ:", favorites);
+
+  const favoritedIds = favorites ? favorites.map((fav) => fav.question_id) : [];
+  console.log("変換されたfavoritedIds配列:", favoritedIds);
+
+  if (favoritedIds.length === 0) {
+    alert("お気に入り登録された問題はまだありません！");
+    return;
+  }
+
+  // ★ quizData2 の中のデータの型を確認（例として最初の要素をチェック）
+  if (quizData2 && quizData2.length > 0) {
+    console.log(
+      "quizData2の先頭のid:",
+      quizData2[0].id,
+      "型:",
+      typeof quizData2[0].id,
+    );
+  }
+
+  const favoriteQuizzes = quizData2.filter((quiz) =>
+    favoritedIds.includes(quiz.id),
+  );
+
+  // ★ 絞り込み結果を確認
+  console.log("一致したfavoriteQuizzes:", favoriteQuizzes);
+
+  const listDiv = document.getElementById("favorite-questions-list");
+  if (!listDiv) return;
+
+  listDiv.innerHTML = "";
+
+  favoriteQuizzes.forEach((quiz) => {
+    const item = document.createElement("div");
+    item.style.marginBottom = "15px";
+    item.style.padding = "10px";
+    item.style.background = "#3d3d3d";
+    item.style.borderRadius = "8px";
+
+    item.innerHTML = `
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <span style="color: #f1c40f;">問題ID: ${quiz.id}</span>
+      </div>
+      <div style="margin-top: 5px;">Q. ${quiz.q}</div>
+      <div style="margin-top: 5px; color: #2ecc71;">借方: ${quiz.dr} / 貸方: ${quiz.cr}</div>
+    `;
+    listDiv.appendChild(item);
+  });
+
+  document.getElementById("favorite-modal").classList.remove("hide");
+};
+
+window.closeFavoritesModal = function () {
+  const modal = document.getElementById("favorite-modal");
+  if (modal) {
+    modal.classList.add("hide");
+  }
+};
+
 function setupButtons(index) {
   const container = document.getElementById("btn-container");
   container.innerHTML = "";
@@ -542,3 +617,4 @@ window.loadBestScores = loadBestScores;
 window.addEventListener("DOMContentLoaded", () => {
   loadBestScores(); // 画面を開いたときにランキングを読み込む
 });
+window.getUserId = getUserId;

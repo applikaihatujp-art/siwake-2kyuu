@@ -6,10 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
     <title>爆速！複式仕訳マスター｜簿記3級の仕訳をスマホで反復練習</title>
-    <meta
-      name="description"
-      content="簿記3級の仕訳問題を反復練習して、反射神経を鍛えよう。登録不要の無料アプリ。隙間時間の学習に最適。スマホでサクサク練習して仕訳の処理能力を劇的に引き上げよう。"
-    />
+    <meta name="description" content="簿記3級の仕訳問題を反復練習して、反射神経を鍛えよう。登録不要の無料アプリ。隙間時間の学習に最適。スマホでサクサク練習して仕訳の処理能力を劇的に引き上げよう。" />
 
     <link rel="stylesheet" href="style.css" />
 
@@ -17,15 +14,9 @@
     <script type="module" src="app.js" defer></script>
 
     <meta property="og:title" content="複式仕訳マスター" />
-    <meta
-      property="og:description"
-      content="簿記2級の仕訳を効率的にマスター！隙間時間でサクッと練習しよう。"
-    />
+    <meta property="og:description" content="簿記2級の仕訳を効率的にマスター！隙間時間でサクッと練習しよう。" />
     <meta property="og:type" content="website" />
-    <meta
-      property="og:image"
-      content="https://boki2.rine-apps.com/ogp-image.png"
-    />
+    <meta property="og:image" content="https://boki2.rine-apps.com/ogp-image.png" />
 
     <link rel="apple-touch-icon" href="apple-touch-icon.png" />
     <link rel="icon" href="favicon.svg" type="image/svg+xml" />
@@ -48,21 +39,15 @@
     <div id="game-container">
       <div id="start-screen">
         <h1>爆速！複式仕訳マスター2級編</h1>
-        <p
-          style="
-            color: #bbb;
-            margin-bottom: 20px;
-            line-height: 1.6;
-            font-size: 14px;
-          "
-        >
+        <p style="color: #bbb; margin-bottom: 20px; line-height: 1.6; font-size: 14px">
           【借方（左）】👉【貸方（右）】の順にボタンを爆速で押せ！<br />
           ★５問正解で選択肢の数が変わるぞ！
         </p>
         <button class="start-btn" onclick="startGame()">GAME START</button>
-        <button class="settings-toggle-btn" onclick="toggleSettingsMenu()">
-          ⚙️ 設定を変更する
-        </button>
+        <div style="display: flex; gap: 10px; justify-content: center; align-items: center; margin-bottom: 15px">
+          <button class="settings-toggle-btn" onclick="toggleSettingsMenu()" style="margin-bottom: 0">⚙️ 設定を変更する</button>
+          <button class="settings-toggle-btn" onclick="showFavoritesModal()" style="margin-bottom: 0; color: #f1c40f">⭐ お気に入り問題</button>
+        </div>
         <div id="settings-group" class="settings-group">
           <div class="setting-box" style="cursor: default">
             <span class="time-label">時間：</span>
@@ -103,6 +88,21 @@
           <!-- ▲ 右側エリアここまで -->
         </div>
       </div>
+      <div id="favorite-modal" class="hide" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8); display: flex; justify-content: center; align-items: center; z-index: 1000">
+        <div style="background: #2c2c2c; padding: 20px; border-radius: 12px; width: 90%; max-width: 500px; max-height: 80vh; overflow-y: auto; color: #fff; box-sizing: border-box">
+          <h2 style="margin-top: 0; color: #f1c40f; display: flex; justify-content: space-between; align-items: center; font-size: 1.2rem">
+            ⭐ お気に入り問題一覧
+            <button onclick="closeFavoritesModal()" style="background: none; border: none; color: #fff; font-size: 20px; cursor: pointer">✕</button>
+          </h2>
+
+          <div id="favorite-questions-list"></div>
+
+          <div style="text-align: right; margin-top: 20px">
+            <button onclick="closeFavoritesModal()" style="padding: 8px 16px; background: #555; color: #fff; border: none; border-radius: 6px; cursor: pointer">閉じる</button>
+          </div>
+        </div>
+      </div>
+      <!-- ▲ 貼り付けここまで -->
 
       <div id="play-screen" class="hide">
         <div id="stats">
@@ -113,38 +113,19 @@
         </div>
         <div id="progress-container"><div id="progress-bar"></div></div>
         <div id="nav-box">
-          <div id="slot-dr" class="nav-slot nav-active">
-            借方(左): 入力待ち...
-          </div>
+          <div id="slot-dr" class="nav-slot nav-active">借方(左): 入力待ち...</div>
           <div id="slot-cr" class="nav-slot">貸方(右): 待ち</div>
         </div>
         <div id="question-box">問題がここに表示されます</div>
         <div id="btn-container" class="btn-container"></div>
         <div class="action-area">
-          <button
-            id="clear-btn"
-            class="clear-btn visibility-hidden"
-            onclick="clearDrSelection()"
-          >
-            借方をやり直す ↩
-          </button>
+          <button id="clear-btn" class="clear-btn visibility-hidden" onclick="clearDrSelection()">借方をやり直す ↩</button>
         </div>
       </div>
 
       <div id="result-screen" class="hide">
         <h1>RESULT</h1>
-        <div
-          style="
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 20px;
-            background: #3d3d3d;
-            padding: 20px;
-            border-radius: 12px;
-            margin-bottom: 20px;
-          "
-        >
+        <div style="display: flex; align-items: center; justify-content: center; gap: 20px; background: #3d3d3d; padding: 20px; border-radius: 12px; margin-bottom: 20px">
           <!-- 制限時間（左側に追加） -->
           <div style="text-align: center">
             <div style="font-size: 14px; color: #aaa">時間</div>
@@ -166,113 +147,30 @@
             </div>
           </div>
 
-          <button
-            id="review-btn"
-            class="quit-btn"
-            style="display: none; padding: 10px 15px; font-size: 14px"
-            onclick="showReview()"
-          >
-            復習する
-          </button>
+          <button id="review-btn" class="quit-btn" style="display: none; padding: 10px 15px; font-size: 14px" onclick="showReview()">復習する</button>
         </div>
 
-        <div
-          id="ad-space"
-          style="
-            background: #333;
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-          "
-        >
-          <p style="color: #aaa; font-size: 12px; margin-bottom: 10px">
-            ADVERTISEMENT
-          </p>
-          <div
-            style="
-              height: 100px;
-              background: #444;
-              display: flex;
-              align-items: center;
-              justify-content: center;
-            "
-          >
-            （ここに広告コードを貼るスペース）
-          </div>
+        <div id="ad-space" style="background: #333; padding: 20px; border-radius: 8px; margin-bottom: 20px">
+          <p style="color: #aaa; font-size: 12px; margin-bottom: 10px">ADVERTISEMENT</p>
+          <div style="height: 100px; background: #444; display: flex; align-items: center; justify-content: center">（ここに広告コードを貼るスペース）</div>
         </div>
 
-        <button
-          class="start-btn"
-          style="
-            width: 200px;
-            display: block;
-            margin: 0 auto;
-            padding: 15px;
-            font-size: 18px;
-          "
-          onclick="location.reload()"
-        >
-          PLAY AGAIN
-        </button>
+        <button class="start-btn" style="width: 200px; display: block; margin: 0 auto; padding: 15px; font-size: 18px" onclick="location.reload()">PLAY AGAIN</button>
       </div>
 
-      <div
-        id="review-modal"
-        class="hide"
-        style="
-          position: fixed;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          background: #2d2d2d;
-          padding: 20px;
-          z-index: 1000;
-          box-sizing: border-box;
-          overflow-y: auto;
-          text-align: left;
-        "
-      >
+      <div id="review-modal" class="hide" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #2d2d2d; padding: 20px; z-index: 1000; box-sizing: border-box; overflow-y: auto; text-align: left">
         <h2 style="color: #f1c40f">間違えた問題の復習</h2>
         <div id="wrong-questions-list" style="margin: 20px 0"></div>
-        <button
-          class="start-btn"
-          style="width: 100%; padding: 15px; font-size: 18px"
-          onclick="hideReview()"
-        >
-          戻る
-        </button>
+        <button class="start-btn" style="width: 100%; padding: 15px; font-size: 18px" onclick="hideReview()">戻る</button>
       </div>
     </div>
 
-    <div
-      style="
-        position: fixed;
-        bottom: 10px;
-        width: 100%;
-        text-align: center;
-        z-index: 9999;
-        background: #2d2d2d;
-        padding: 5px 0;
-      "
-    >
-      <a
-        href="blog.html"
-        style="color: #888; font-size: 14px; text-decoration: none"
-        >開発者ブログ</a
-      >
+    <div style="position: fixed; bottom: 10px; width: 100%; text-align: center; z-index: 9999; background: #2d2d2d; padding: 5px 0">
+      <a href="blog.html" style="color: #888; font-size: 14px; text-decoration: none">開発者ブログ</a>
       |
-      <a
-        href="mailto:appli.kaihatu.jp+shiwake@gmail.com"
-        style="color: #888; font-size: 14px; text-decoration: none"
-        >お問い合わせ</a
-      >
+      <a href="mailto:appli.kaihatu.jp+shiwake@gmail.com" style="color: #888; font-size: 14px; text-decoration: none">お問い合わせ</a>
       |
-      <a
-        href="privacy.html"
-        style="color: #888; font-size: 14px; text-decoration: none"
-        >プライバシーポリシー</a
-      >
+      <a href="privacy.html" style="color: #888; font-size: 14px; text-decoration: none">プライバシーポリシー</a>
     </div>
   </body>
 </html>
