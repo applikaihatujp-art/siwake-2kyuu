@@ -37,8 +37,7 @@ function saveSettings() {
 function loadSettings() {
   const savedTime = localStorage.getItem("time_setting");
 
-  if (savedTime !== null)
-    document.getElementById("time-select").value = savedTime;
+  if (savedTime !== null) document.getElementById("time-select").value = savedTime;
 }
 
 function saveResultToHistory(finalScore, totalScore, settingTime) {
@@ -59,8 +58,7 @@ function showHistoryUI() {
   historyList.innerHTML = "";
 
   if (history.length === 0) {
-    historyList.innerHTML =
-      '<div class="history-empty">まだ履歴がありません</div>';
+    historyList.innerHTML = '<div class="history-empty">まだ履歴がありません</div>';
     return;
   }
 
@@ -69,8 +67,7 @@ function showHistoryUI() {
     itemEl.className = "history-item";
 
     // 古いデータで総得点がない場合の安全対策
-    const displayTotalScore =
-      item.totalScore !== undefined ? item.totalScore : 0;
+    const displayTotalScore = item.totalScore !== undefined ? item.totalScore : 0;
 
     itemEl.innerHTML = `
             <span>${index + 1}回前 (${item.time}秒)</span>
@@ -117,10 +114,7 @@ function startGame() {
 window.showFavoritesModal = async function () {
   const currentUserId = getUserId();
 
-  const { data: favorites, error } = await supabase
-    .from("favorites")
-    .select("question_id")
-    .eq("user_id", currentUserId);
+  const { data: favorites, error } = await supabase.from("favorites").select("question_id").eq("user_id", currentUserId);
 
   if (error) {
     console.error("お気に入りリストの取得に失敗しました:", error);
@@ -128,7 +122,6 @@ window.showFavoritesModal = async function () {
     return;
   }
 
-  // ★ ここで取得できたお気に入りIDを確認
   console.log("Supabaseから取得したfavoritesデータ:", favorites);
 
   const favoritedIds = favorites ? favorites.map((fav) => fav.question_id) : [];
@@ -139,21 +132,12 @@ window.showFavoritesModal = async function () {
     return;
   }
 
-  // ★ quizData2 の中のデータの型を確認（例として最初の要素をチェック）
   if (quizData2 && quizData2.length > 0) {
-    console.log(
-      "quizData2の先頭のid:",
-      quizData2[0].id,
-      "型:",
-      typeof quizData2[0].id,
-    );
+    console.log("quizData2の先頭のid:", quizData2[0].id, "型:", typeof quizData2[0].id);
   }
 
-  const favoriteQuizzes = quizData2.filter((quiz) =>
-    favoritedIds.includes(quiz.id),
-  );
+  const favoriteQuizzes = quizData2.filter((quiz) => favoritedIds.includes(quiz.id));
 
-  // ★ 絞り込み結果を確認
   console.log("一致したfavoriteQuizzes:", favoriteQuizzes);
 
   const listDiv = document.getElementById("favorite-questions-list");
@@ -168,9 +152,11 @@ window.showFavoritesModal = async function () {
     item.style.background = "#3d3d3d";
     item.style.borderRadius = "8px";
 
+    // ▼ 星ボタンを追加（お気に入り一覧なので最初は必ず「★」で黄色）
     item.innerHTML = `
       <div style="display: flex; justify-content: space-between; align-items: center;">
         <span style="color: #f1c40f;">問題ID: ${quiz.id}</span>
+        <button class="favorite-btn" data-id="${quiz.id}" style="background: none; border: none; font-size: 20px; cursor: pointer; color: #f1c40f;">★</button>
       </div>
       <div style="margin-top: 5px;">Q. ${quiz.q}</div>
       <div style="margin-top: 5px; color: #2ecc71;">借方: ${quiz.dr} / 貸方: ${quiz.cr}</div>
@@ -179,6 +165,16 @@ window.showFavoritesModal = async function () {
   });
 
   document.getElementById("favorite-modal").classList.remove("hide");
+
+  // ▼ 追加：生成された星ボタンにクリックイベントを設定
+  document.querySelectorAll("#favorite-questions-list .favorite-btn").forEach((button) => {
+    button.addEventListener("click", async (e) => {
+      const quizId = parseInt(e.target.getAttribute("data-id"), 10);
+
+      // 既存の toggleFavorite 関数を呼び出してSupabase上のデータを削除（または切り替え）
+      await toggleFavorite(quizId, e.target);
+    });
+  });
 };
 
 window.closeFavoritesModal = function () {
@@ -196,16 +192,8 @@ function setupButtons(index) {
   const currentQuiz = quizData2[index];
 
   // 安全確認
-  if (
-    !currentQuiz ||
-    !currentQuiz.options ||
-    !currentQuiz.dr ||
-    !currentQuiz.cr
-  ) {
-    console.error(
-      "エラー！データが見つからないか、必要データが不足しています。インデックス: " +
-        index,
-    );
+  if (!currentQuiz || !currentQuiz.options || !currentQuiz.dr || !currentQuiz.cr) {
+    console.error("エラー！データが見つからないか、必要データが不足しています。インデックス: " + index);
     return;
   }
 
@@ -216,13 +204,9 @@ function setupButtons(index) {
 
   // scoreが5未満（前半）か、5以上（後半）かでダミーの数を変更
   if (score < 5) {
-    const availableDummies = currentQuiz.options.filter(
-      (opt) => opt !== currentQuiz.dr && opt !== currentQuiz.cr,
-    );
+    const availableDummies = currentQuiz.options.filter((opt) => opt !== currentQuiz.dr && opt !== currentQuiz.cr);
 
-    const shuffledDummies = [...availableDummies].sort(
-      () => Math.random() - 0.5,
-    );
+    const shuffledDummies = [...availableDummies].sort(() => Math.random() - 0.5);
     const selectedDummies = shuffledDummies.slice(0, 6);
 
     displayOptions = displayOptions.concat(selectedDummies);
@@ -306,9 +290,7 @@ function handleButtonClick(selectedText) {
 
       // 総合点数に加算
       totalScore += basePoints + speedBonus;
-      console.log(
-        `今回の獲得点数: 基礎${basePoints}点 + スピード${speedBonus}点 = 合計${basePoints + speedBonus}点 (累計: ${totalScore}点)`,
-      );
+      console.log(`今回の獲得点数: 基礎${basePoints}点 + スピード${speedBonus}点 = 合計${basePoints + speedBonus}点 (累計: ${totalScore}点)`);
 
       // ★【ここに追加】画面上の「score」の数字を更新する
       document.getElementById("totalScore").innerText = totalScore;
@@ -446,8 +428,7 @@ async function loadBestScores() {
     if (!bestListEl) return;
 
     if (error || !data || data.length === 0) {
-      bestListEl.innerHTML =
-        '<div class="history-empty">データがありません</div>';
+      bestListEl.innerHTML = '<div class="history-empty">データがありません</div>';
       return;
     }
 
@@ -522,10 +503,7 @@ async function showReview() {
   listDiv.innerHTML = "";
 
   // 1. ユーザーがすでに登録しているお気に入りリストをSupabaseから取得
-  const { data: favorites, error } = await supabase
-    .from("favorites")
-    .select("question_id")
-    .eq("user_id", currentUserId);
+  const { data: favorites, error } = await supabase.from("favorites").select("question_id").eq("user_id", currentUserId);
 
   if (error) {
     console.error("お気に入りの取得に失敗しました:", error);
@@ -576,11 +554,7 @@ async function toggleFavorite(quizId, buttonElement) {
 
   if (isCurrentlyFavorited) {
     // 削除処理
-    const { error } = await supabase
-      .from("favorites")
-      .delete()
-      .eq("user_id", currentUserId)
-      .eq("question_id", quizId);
+    const { error } = await supabase.from("favorites").delete().eq("user_id", currentUserId).eq("question_id", quizId);
 
     if (!error) {
       buttonElement.textContent = "☆";
@@ -590,9 +564,7 @@ async function toggleFavorite(quizId, buttonElement) {
     }
   } else {
     // 追加処理
-    const { error } = await supabase
-      .from("favorites")
-      .insert([{ user_id: currentUserId, question_id: quizId }]);
+    const { error } = await supabase.from("favorites").insert([{ user_id: currentUserId, question_id: quizId }]);
 
     if (!error) {
       buttonElement.textContent = "★";
