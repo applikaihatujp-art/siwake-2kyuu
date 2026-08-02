@@ -151,7 +151,7 @@ h1 {
 /* 1. 通常のボタンの見た目 */
 .btn-container button {
   font-size: 14px !important;
-  padding: 10px;
+  padding: 8px;
   word-break: keep-all;
   white-space: nowrap;
 
