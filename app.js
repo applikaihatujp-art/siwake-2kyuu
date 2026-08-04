@@ -112,7 +112,7 @@ function startGame() {
 
 // お気に入り一覧を表示するモーダルを開く関数
 window.showFavoritesModal = async function () {
-  const currentUserId = getUserId();
+  const currentUserId = await getUserId();
 
   const { data: favorites, error } = await supabase.from("favorites").select("question_id").eq("user_id", currentUserId);
 
@@ -413,7 +413,14 @@ function endGame() {
 
 async function loadBestScores() {
   try {
-    const userId = getUserId(); // 自身の固有IDを取得
+    const userId = await getUserId(); // 自身の固有IDを取得
+
+    // もしuserIdが取得できていない場合のガードがあるとさらに安心です
+    if (!userId) {
+      const bestListEl = document.getElementById("best-score-list");
+      if (bestListEl) bestListEl.innerHTML = '<div class="history-empty">データがありません</div>';
+      return;
+    }
 
     const { data, error } = await supabase
       .from("scores")
@@ -497,7 +504,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
 // 復習リストを表示する関数
 async function showReview() {
-  const currentUserId = getUserId();
+  const currentUserId = await getUserId();
 
   const listDiv = document.getElementById("wrong-questions-list");
   listDiv.innerHTML = "";
@@ -549,7 +556,7 @@ async function showReview() {
 // 3. お気に入りの追加・削除を切り替える（トグル）関数
 async function toggleFavorite(quizId, buttonElement) {
   // すでに星が黄色（★）かどうかで追加・削除を判定
-  const currentUserId = getUserId();
+  const currentUserId = await getUserId();
   const isCurrentlyFavorited = buttonElement.textContent === "★";
 
   if (isCurrentlyFavorited) {
