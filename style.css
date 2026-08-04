@@ -31,6 +31,27 @@ h1 {
   margin-bottom: 5px;
 }
 
+/* 左上のポータルリンクのスタイル */
+.portal-link {
+  position: absolute;
+  top: 4px;
+  left: 16px;
+  color: #aaa;
+  text-decoration: none;
+  font-size: 13px;
+  padding: 6px 10px;
+  border-radius: 20px;
+  background-color: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.2s ease;
+}
+
+.portal-link:hover {
+  color: #fff;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
 /* ステータスエリア */
 #stats {
   display: flex;
